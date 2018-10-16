@@ -31,12 +31,11 @@ import static com.rizwan.moviesapp.apis.ResponseCodeConstants.SERVER_ERROR;
 
 
 /**
- *
  * 1. loadMoviesList() method, which will increase page number and do call;
  * 2. MVP pattern used for validate and make a call using interface;
  */
 
-public class MoviesListActivity extends AppCompatActivity implements ActivityView, View.OnClickListener {
+public class MoviesListActivity extends AppCompatActivity implements ActivityView, View.OnClickListener, MoviesListAdapter.ListItemOnClickListener {
 
     private View rootView, mErrorView, resultView;
     private MainScreenPresenter presenter;
@@ -83,7 +82,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     private void setupDataView() {
         recyclerView = resultView.findViewById(R.id.recyclerViewList);
 
-        adapter = new MoviesListAdapter(new ArrayList<MoviesInfo>());
+        adapter = new MoviesListAdapter(new ArrayList<MoviesInfo>(), this);
         layoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -105,6 +104,10 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
                     loadMoviesList();
                     Log.d(TAG, " loading...");
                     Utils.showViews(progressBarView);
+                }
+                if (page > totalPage) {
+                    if (!recyclerView.hasFixedSize())
+                        recyclerView.setHasFixedSize(true);
                 }
             }
 
@@ -169,6 +172,17 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
                 dismissSnackBar();
                 loadMoviesList();
                 break;
+        }
+    }
+
+    /***
+     * this method invoked from recyclerView adapter
+     * @param selectedObject adapter item object;
+     */
+    @Override
+    public void onListItemClick(MoviesInfo selectedObject) {
+        if (selectedObject != null) {
+            Log.d(TAG, "selected:" + selectedObject.getId() + " Title:" + selectedObject.getTitle());
         }
     }
 }

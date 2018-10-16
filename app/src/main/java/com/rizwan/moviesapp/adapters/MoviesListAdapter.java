@@ -9,10 +9,14 @@ import android.widget.ImageView;
 
 import com.rizwan.moviesapp.R;
 import com.rizwan.moviesapp.Utils;
+import com.rizwan.moviesapp.activities.MoviesListActivity;
 import com.rizwan.moviesapp.apis.model.MoviesInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.rizwan.moviesapp.apis.MoviesApiService.IMAGE_PATH;
+import static com.rizwan.moviesapp.apis.MoviesApiService._SCHEME;
 
 /**
  * <p>
@@ -24,10 +28,9 @@ import java.util.List;
  */
 
 public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.MyViewHolder> {
-    private static final String TAG = "MoviesListAdapter";
+    ListItemOnClickListener mOnClickListener;
+    private static final String TAG = MoviesListAdapter.class.getName();
     private List<MoviesInfo> list;
-    private static final String _SCHEME = "https";
-    private static final String IMAGE_PATH = "/image.tmdb.org/t/p/w185";
 
     public void addAllItem(final List<MoviesInfo> mList) {
         if (list == null && mList != null && mList.size() > 0) {
@@ -42,7 +45,7 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.My
 
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView poster;
 
         MyViewHolder(View view) {
@@ -52,6 +55,7 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.My
 
         private void init(View view) {
             poster = view.findViewById(R.id.poster);
+            itemView.setOnClickListener(this);
         }
 
         private void bindView(int position) {
@@ -62,10 +66,15 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.My
             Utils.loadImage(itemView.getContext(), poster, builder.build(), R.drawable.ic_broken_image);
         }
 
+        @Override
+        public void onClick(View v) {
+            mOnClickListener.onListItemClick(list.get(getAdapterPosition()));
+        }
     }
 
-    public MoviesListAdapter(List<MoviesInfo> list) {
+    public MoviesListAdapter(List<MoviesInfo> list, ListItemOnClickListener mOnClickListener) {
         this.list = list;
+        this.mOnClickListener = mOnClickListener;
     }
 
     @Override
@@ -86,5 +95,7 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.My
         return list.size();
     }
 
-
+    public interface ListItemOnClickListener {
+        void onListItemClick(MoviesInfo selectedObject);
+    }
 }

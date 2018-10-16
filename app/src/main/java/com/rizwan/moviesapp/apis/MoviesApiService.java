@@ -15,6 +15,9 @@ import retrofit2.http.Query;
 
 public interface MoviesApiService {
     String POPULAR_URL = "3/movie/popular";
+    String _SCHEME = "https";
+    String IMAGE_PATH = "/image.tmdb.org/t/p/w185";
+
 
     /***
      * this method using to fetch list of movies based on pagination;
