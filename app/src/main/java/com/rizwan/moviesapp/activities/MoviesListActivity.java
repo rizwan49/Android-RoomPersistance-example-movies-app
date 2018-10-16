@@ -8,6 +8,8 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -15,6 +17,7 @@ import com.rizwan.moviesapp.FontUtils;
 import com.rizwan.moviesapp.R;
 import com.rizwan.moviesapp.Utils;
 import com.rizwan.moviesapp.adapters.MoviesListAdapter;
+import com.rizwan.moviesapp.apis.MoviesApiService;
 import com.rizwan.moviesapp.apis.model.MoviesInfo;
 import com.rizwan.moviesapp.apis.model.MoviesModel;
 import com.rizwan.moviesapp.model.MainScreenPresenterImpl;
@@ -42,13 +45,14 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     private View progressBarView;
     private Button retry;
 
-    private boolean loading = true;
-    private int totalItemCount, lastVisibleItem, visibleThreshold = 5, page = 0, totalPage = 0;
+    private boolean loading;
+    private int totalItemCount, lastVisibleItem, visibleThreshold = 5, page, totalPage = 0, DEFAULT_SPAN_COUNT = 2;
 
     private RecyclerView recyclerView;
     private GridLayoutManager layoutManager;
     private MoviesListAdapter adapter;
     private String TAG = this.getClass().getName();
+    private String selectedUrl;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,12 +62,43 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         setupErrorView();
         setupDataView();
         setupListeners();
+        resetAndCallAnApi();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_most_popular:
+                selectedUrl = MoviesApiService.URL_POPULAR;
+                break;
+
+            case R.id.menu_top_rated:
+                selectedUrl = MoviesApiService.URL_TOP_RATED;
+                break;
+        }
+
+        resetAndCallAnApi();
+        return true;
+    }
+
+    private void resetAndCallAnApi() {
+        page = 0;
+        loading = true;
+        if (adapter != null)
+            adapter.clearAllItems();
         loadMoviesList();
     }
 
 
     private void loadMoviesList() {
-        presenter.validateAndProceed(this, ++page);
+        Utils.showViews(progressBarView);
+        presenter.validateAndProceed(this, selectedUrl, ++page);
     }
 
     private void setupListeners() {
@@ -76,6 +111,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         progressBarView = findViewById(R.id.progress_bar);
         mErrorView = findViewById(R.id.error_view);
         resultView = findViewById(R.id.resultView);
+        selectedUrl = MoviesApiService.URL_POPULAR;
     }
 
 
@@ -83,7 +119,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         recyclerView = resultView.findViewById(R.id.recyclerViewList);
 
         adapter = new MoviesListAdapter(new ArrayList<MoviesInfo>(), this);
-        layoutManager = new GridLayoutManager(this, 2);
+        layoutManager = new GridLayoutManager(this, DEFAULT_SPAN_COUNT);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
@@ -97,13 +133,13 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
                 }
                 totalItemCount = layoutManager.getItemCount();
                 lastVisibleItem = layoutManager.findLastVisibleItemPosition();
-                if (page < totalPage && loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
+                if (page <= totalPage && loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
                     // End has been reached
                     // Do something
                     loading = false;
                     loadMoviesList();
                     Log.d(TAG, " loading...");
-                    Utils.showViews(progressBarView);
+
                 }
                 if (page > totalPage) {
                     if (!recyclerView.hasFixedSize())

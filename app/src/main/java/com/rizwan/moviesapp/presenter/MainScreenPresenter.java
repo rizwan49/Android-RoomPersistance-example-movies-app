@@ -9,5 +9,5 @@ import android.content.Context;
 public interface MainScreenPresenter {
     void doCallOrErrorHandle(int code, int page);
 
-    void validateAndProceed(Context mContext, int page);
+    void validateAndProceed(Context mContext, String selectedUrl, int page);
 }

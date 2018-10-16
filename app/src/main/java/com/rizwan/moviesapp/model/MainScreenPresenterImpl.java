@@ -1,6 +1,7 @@
 package com.rizwan.moviesapp.model;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.rizwan.moviesapp.Utils;
@@ -26,6 +27,7 @@ import static com.rizwan.moviesapp.apis.ResponseCodeConstants.SERVER_ERROR;
 
 public class MainScreenPresenterImpl implements MainScreenPresenter {
     ActivityView mainActivityView;
+    String selectedUrl;
 
     public MainScreenPresenterImpl(ActivityView mainScreenView) {
         this.mainActivityView = mainScreenView;
@@ -33,7 +35,7 @@ public class MainScreenPresenterImpl implements MainScreenPresenter {
 
     @Override
     public void doCallOrErrorHandle(int code, int page) {
-        if (code == ResponseCodeConstants.SUCCESS) {
+        if (code == ResponseCodeConstants.VALID) {
             doRestApiCall(page);
         } else {
             Log.d("presenter", "error:" + code);
@@ -42,16 +44,17 @@ public class MainScreenPresenterImpl implements MainScreenPresenter {
     }
 
     @Override
-    public void validateAndProceed(Context mContext, int page) {
-        if (Utils.isNetworkAvailable(mContext))
-            doCallOrErrorHandle(ResponseCodeConstants.SUCCESS, page);
+    public void validateAndProceed(Context mContext, String selectedUrl, int page) {
+        this.selectedUrl = selectedUrl;
+        if (Utils.isNetworkAvailable(mContext) && !TextUtils.isEmpty(selectedUrl))
+            doCallOrErrorHandle(ResponseCodeConstants.VALID, page);
         else
             doCallOrErrorHandle(ResponseCodeConstants.INTERNET_CONNECTION, page);
     }
 
     private void doRestApiCall(int page) {
         final CompositeDisposable disposable = new CompositeDisposable();
-        RestClient.getApiService().getMoviesList(page)
+        RestClient.getApiService().getMoviesList(selectedUrl, page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Response<MoviesModel>>() {

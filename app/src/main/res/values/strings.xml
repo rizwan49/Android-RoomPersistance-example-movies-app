@@ -6,4 +6,6 @@
     <string name="error_view_desc">network is not available this view will appear with retry button.</string>
     <string name="movies_banner">Movie banner</string>
     <string name="movie_poster">load movie\'s poster here.</string>
+    <string name="most_popular">Most Popular</string>
+    <string name="top_rated">Top Rated</string>
 </resources>

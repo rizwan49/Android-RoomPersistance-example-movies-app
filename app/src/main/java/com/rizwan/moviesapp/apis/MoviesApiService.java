@@ -7,6 +7,7 @@ import io.reactivex.Observable;
 import retrofit2.Response;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
+import retrofit2.http.Url;
 
 /**
  * Created by abdul on 14/10/18.
@@ -14,7 +15,9 @@ import retrofit2.http.Query;
  */
 
 public interface MoviesApiService {
-    String POPULAR_URL = "3/movie/popular";
+    String URL_POPULAR = "3/movie/popular";
+    String URL_TOP_RATED = "3/movie/top_rated";
+
     String _SCHEME = "https";
     String IMAGE_PATH = "/image.tmdb.org/t/p/w185";
 
@@ -24,7 +27,7 @@ public interface MoviesApiService {
      * @param page default is 1;
      * @return list of results , totalPageCount etc;
      */
-    @GET(POPULAR_URL)
-    Observable<Response<MoviesModel>> getMoviesList(@Query("page") int page);
+    @GET
+    Observable<Response<MoviesModel>> getMoviesList(@Url String url, @Query("page") int page);
 
 }

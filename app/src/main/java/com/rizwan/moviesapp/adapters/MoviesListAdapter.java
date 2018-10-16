@@ -45,6 +45,13 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.My
 
     }
 
+    public void clearAllItems() {
+        if (list != null && list.size() > 0) {
+            list.clear();
+            notifyDataSetChanged();
+        }
+    }
+
     class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView poster;
 
