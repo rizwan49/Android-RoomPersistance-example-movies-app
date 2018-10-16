@@ -8,4 +8,8 @@
     <string name="movie_poster">load movie\'s poster here.</string>
     <string name="most_popular">Most Popular</string>
     <string name="top_rated">Top Rated</string>
+    <string name="movie_detail">MovieDetail</string>
+    <string name="pop_movies">Pop Movies</string>
+    <string name="detail_error_message">Data not available</string>
+    <string name="mark_as_favorite">Mark as favorite</string>
 </resources>

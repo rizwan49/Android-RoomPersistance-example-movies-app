@@ -58,6 +58,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
+        setTitle(R.string.pop_movies);
         init();
         setupErrorView();
         setupDataView();
@@ -219,6 +220,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     public void onListItemClick(MoviesInfo selectedObject) {
         if (selectedObject != null) {
             Log.d(TAG, "selected:" + selectedObject.getId() + " Title:" + selectedObject.getTitle());
+            DetailActivity.startDetailActivity(this, selectedObject);
         }
     }
 }
