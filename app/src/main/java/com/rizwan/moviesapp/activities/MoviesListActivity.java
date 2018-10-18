@@ -1,8 +1,11 @@
 package com.rizwan.moviesapp.activities;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -12,8 +15,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
-import com.rizwan.moviesapp.FontUtils;
 import com.rizwan.moviesapp.R;
 import com.rizwan.moviesapp.Utils;
 import com.rizwan.moviesapp.adapters.MoviesListAdapter;
@@ -25,10 +28,10 @@ import com.rizwan.moviesapp.presenter.MainScreenPresenter;
 import com.rizwan.moviesapp.view.ActivityView;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import retrofit2.Response;
 
-import static android.graphics.Typeface.BOLD;
 import static com.rizwan.moviesapp.apis.ResponseCodeConstants.INTERNET_CONNECTION;
 import static com.rizwan.moviesapp.apis.ResponseCodeConstants.SERVER_ERROR;
 
@@ -46,13 +49,20 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     private Button retry;
 
     private boolean loading;
-    private int totalItemCount, lastVisibleItem, visibleThreshold = 5, page, totalPage = 0, DEFAULT_SPAN_COUNT = 2;
+    private int totalItemCount;
+    private int lastVisibleItem;
+    private final int visibleThreshold = 5;
+    private int page;
+    private int totalPage = 0;
+    private final int DEFAULT_SPAN_COUNT = 2;
 
-    private RecyclerView recyclerView;
     private GridLayoutManager layoutManager;
     private MoviesListAdapter adapter;
-    private String TAG = this.getClass().getName();
+    private final String TAG = this.getClass().getName();
     private String selectedUrl;
+
+    private Snackbar snackbar;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -117,8 +127,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
 
 
     private void setupDataView() {
-        recyclerView = resultView.findViewById(R.id.recyclerViewList);
-
+        RecyclerView recyclerView = resultView.findViewById(R.id.recyclerViewList);
         adapter = new MoviesListAdapter(new ArrayList<MoviesInfo>(), this);
         layoutManager = new GridLayoutManager(this, DEFAULT_SPAN_COUNT);
         recyclerView.setLayoutManager(layoutManager);
@@ -128,7 +137,6 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                Log.d(TAG, " scrolling:" + dy + " dx:" + dx + " chcount:" + layoutManager.getChildCount());
                 if (dy <= 0) {
                     return;
                 }
@@ -152,7 +160,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     }
 
     private void setupViewAdapter(MoviesModel info) {
-        adapter.addAllItem(info.getUpcomingMoviesList());
+        adapter.addAllItem(info.getMoviesList());
         loading = true;
         Utils.hideViews(progressBarView);
     }
@@ -160,14 +168,22 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     private void setupErrorView() {
         snackbar = Snackbar.make(rootView, R.string.server_error, Snackbar.LENGTH_INDEFINITE);
         retry = mErrorView.findViewById(R.id.buttonRetry);
-        retry.setTypeface(FontUtils.getLight(), BOLD);
+        snackbar.setActionTextColor(ContextCompat.getColor(this, R.color.colorButton));
+        snackbar.setAction(R.string.open_setting, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(android.provider.Settings.ACTION_SETTINGS);
+                PackageManager packageManager = getPackageManager();
+                if (intent.resolveActivity(packageManager) != null) {
+                    startActivityForResult(intent, 0);
+                }
+            }
+        });
     }
 
-    Snackbar snackbar;
 
     @Override
     public void error(int type) {
-        dismissSnackBar();
         switch (type) {
             case SERVER_ERROR:
                 Utils.hideViews(progressBarView, resultView);
@@ -177,7 +193,6 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
             case INTERNET_CONNECTION:
                 Utils.hideViews(progressBarView, resultView);
                 Utils.showViews(mErrorView);
-                snackbar = Snackbar.make(rootView, R.string.network_error, Snackbar.LENGTH_INDEFINITE);
                 snackbar.show();
                 break;
         }
@@ -194,9 +209,12 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         Log.d("mainActivity", "data getting: ");
         Utils.hideViews(progressBarView, mErrorView);
         Utils.showViews(resultView);
-        page = response.body().getPage();
-        totalPage = response.body().getTotalPages();
-        setupViewAdapter(response.body());
+
+        page = Objects.requireNonNull(response.body()).getPage();
+        totalPage = Objects.requireNonNull(response.body()).getTotalPages();
+        setupViewAdapter(Objects.requireNonNull(response.body()));
+        dismissSnackBar();
+
     }
 
 
@@ -206,7 +224,6 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
             case R.id.buttonRetry:
                 Utils.hideViews(mErrorView, resultView);
                 Utils.showViews(progressBarView);
-                dismissSnackBar();
                 loadMoviesList();
                 break;
         }
@@ -217,10 +234,10 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
      * @param selectedObject adapter item object;
      */
     @Override
-    public void onListItemClick(MoviesInfo selectedObject) {
+    public void onListItemClick(MoviesInfo selectedObject, View view) {
         if (selectedObject != null) {
             Log.d(TAG, "selected:" + selectedObject.getId() + " Title:" + selectedObject.getTitle());
-            DetailActivity.startDetailActivity(this, selectedObject);
+            DetailActivity.startDetailActivity(this, selectedObject, (ImageView) view);
         }
     }
 }

@@ -21,7 +21,7 @@ public class HeaderModifierInterceptor implements Interceptor {
     private static final String APPLICATION_JSON = "application/json";
     private static final String ACCEPT = "Accept";
 
-    String TAG = this.getClass().getName();
+    private final String TAG = this.getClass().getName();
 
     public HeaderModifierInterceptor() {
     }

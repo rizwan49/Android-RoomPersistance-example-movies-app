@@ -8,13 +8,15 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.Objects;
+
 
 /**
  * Created by abdul on 15/10/18.
  */
 
 public class Utils {
-    private static String TAG = "Utils";
+    private static String TAG = Utils.class.getName();
 
     public static void hideViews(View... views) {
         for (View view : views) {
@@ -48,10 +50,11 @@ public class Utils {
     public static boolean isNetworkAvailable(final Context context) {
         if (context == null) return false;
         final ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
-        if (connectivityManager.getActiveNetworkInfo() != null) {
+        if (Objects.requireNonNull(connectivityManager).getActiveNetworkInfo() != null) {
             try {
                 return connectivityManager.getActiveNetworkInfo().isConnected();
             } catch (Exception e) {
+                return false;
             }
         }
         return false;

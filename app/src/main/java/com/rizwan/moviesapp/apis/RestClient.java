@@ -18,13 +18,11 @@ import retrofit2.converter.moshi.MoshiConverterFactory;
 
 public class RestClient {
     private static MoviesApiService apiService;
-    private HeaderModifierInterceptor headerModifierInterceptor;
 
     private RestClient() {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-        headerModifierInterceptor = new HeaderModifierInterceptor();
 
-        httpClient.interceptors().add(headerModifierInterceptor);
+        httpClient.interceptors().add(new HeaderModifierInterceptor());
         if (BuildConfig.DEBUG) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);

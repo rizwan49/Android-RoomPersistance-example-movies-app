@@ -26,8 +26,8 @@ import static com.rizwan.moviesapp.apis.ResponseCodeConstants.SERVER_ERROR;
  */
 
 public class MainScreenPresenterImpl implements MainScreenPresenter {
-    ActivityView mainActivityView;
-    String selectedUrl;
+    private final ActivityView mainActivityView;
+    private String selectedUrl;
 
     public MainScreenPresenterImpl(ActivityView mainScreenView) {
         this.mainActivityView = mainScreenView;

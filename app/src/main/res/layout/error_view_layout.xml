@@ -1,40 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/error_view"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:contentDescription="@string/error_view_desc"
-    android:fitsSystemWindows="true"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
     android:visibility="gone"
     tools:visibility="visible">
 
-    <LinearLayout
+    <ImageView
+        android:id="@+id/imageViewError"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:contentDescription="@string/error_view_desc"
+        android:padding="16dp"
+        android:src="@drawable/ic_internet_off" />
+
+    <Button
+        android:id="@+id/buttonRetry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
-
-        <ImageView
-            android:id="@+id/imageViewError"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:layout_margin="16dp"
-            android:contentDescription="@string/movies_banner"
-            android:src="@drawable/ic_internet_off" />
-
-        <Button
-            android:id="@+id/buttonRetry"
-            android:layout_width="wrap_content"
-            android:layout_height="56dp"
-            android:backgroundTint="@color/colorPrimary"
-            android:paddingEnd="36dp"
-            android:paddingStart="36dp"
-            android:text="@string/retry"
-            android:textAllCaps="false"
-            android:textColor="@color/textColor"
-            android:textSize="18sp" />
-    </LinearLayout>
-
-</FrameLayout>
+        android:paddingEnd="36dp"
+        android:paddingStart="36dp"
+        android:text="@string/retry"
+        android:textAllCaps="false"
+        android:textColor="@color/textColor"
+        android:textSize="14sp" />
+</LinearLayout>

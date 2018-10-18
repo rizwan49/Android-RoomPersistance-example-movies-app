@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">MoviesApp</string>
     <string name="retry">Retry</string>
     <string name="network_error">Please check network connection!</string>
@@ -12,4 +12,10 @@
     <string name="pop_movies">Pop Movies</string>
     <string name="detail_error_message">Data not available</string>
     <string name="mark_as_favorite">Mark as favorite</string>
+
+    <string name="average_rate">
+         <xliff:g example="4.5" id="vote_average">%1$.1f</xliff:g>\/10
+    </string>
+    <string name="open_setting">Open Setting</string>
+    <string name="transition_banner_id">banner</string>
 </resources>

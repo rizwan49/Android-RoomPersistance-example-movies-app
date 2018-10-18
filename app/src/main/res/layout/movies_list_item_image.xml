@@ -3,4 +3,5 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:adjustViewBounds="true"
-    android:contentDescription="@string/movie_poster" />
+    android:contentDescription="@string/movie_poster"
+    android:transitionName="@string/transition_banner_id" />

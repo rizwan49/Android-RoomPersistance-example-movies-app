@@ -12,9 +12,6 @@ import com.squareup.moshi.Json;
 
 public class MoviesInfo implements Parcelable, Comparable<MoviesInfo> {
 
-    @Json(name = "vote_count")
-    private int voteCount;
-
     @Json(name = "id")
     private int id;
 
@@ -24,28 +21,14 @@ public class MoviesInfo implements Parcelable, Comparable<MoviesInfo> {
     @Json(name = "title")
     private String title;
 
-    @Json(name = "popularity")
-    private double popularity;
-
     @Json(name = "poster_path")
     private String posterPath;
-
-    @Json(name = "original_language")
-    private String originalLanguage;
 
     @Json(name = "overview")
     private String overview;
 
     @Json(name = "release_date")
     private String releaseDate;
-
-    public int getVoteCount() {
-        return voteCount;
-    }
-
-    public void setVoteCount(int voteCount) {
-        this.voteCount = voteCount;
-    }
 
     public int getId() {
         return id;
@@ -59,10 +42,6 @@ public class MoviesInfo implements Parcelable, Comparable<MoviesInfo> {
         return voteAverage;
     }
 
-    public void setVoteAverage(double voteAverage) {
-        this.voteAverage = voteAverage;
-    }
-
     public String getTitle() {
         return title;
     }
@@ -71,44 +50,16 @@ public class MoviesInfo implements Parcelable, Comparable<MoviesInfo> {
         this.title = title;
     }
 
-    public double getPopularity() {
-        return popularity;
-    }
-
-    public void setPopularity(double popularity) {
-        this.popularity = popularity;
-    }
-
     public String getPosterPath() {
         return posterPath;
-    }
-
-    public void setPosterPath(String posterPath) {
-        this.posterPath = posterPath;
-    }
-
-    public String getOriginalLanguage() {
-        return originalLanguage;
-    }
-
-    public void setOriginalLanguage(String originalLanguage) {
-        this.originalLanguage = originalLanguage;
     }
 
     public String getOverview() {
         return overview;
     }
 
-    public void setOverview(String overview) {
-        this.overview = overview;
-    }
-
     public String getReleaseDate() {
         return releaseDate;
-    }
-
-    public void setReleaseDate(String releaseDate) {
-        this.releaseDate = releaseDate;
     }
 
     @Override
@@ -118,13 +69,10 @@ public class MoviesInfo implements Parcelable, Comparable<MoviesInfo> {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.voteCount);
         dest.writeInt(this.id);
         dest.writeDouble(this.voteAverage);
         dest.writeString(this.title);
-        dest.writeDouble(this.popularity);
         dest.writeString(this.posterPath);
-        dest.writeString(this.originalLanguage);
         dest.writeString(this.overview);
         dest.writeString(this.releaseDate);
     }
@@ -132,14 +80,11 @@ public class MoviesInfo implements Parcelable, Comparable<MoviesInfo> {
     public MoviesInfo() {
     }
 
-    protected MoviesInfo(Parcel in) {
-        this.voteCount = in.readInt();
+    private MoviesInfo(Parcel in) {
         this.id = in.readInt();
         this.voteAverage = in.readDouble();
         this.title = in.readString();
-        this.popularity = in.readDouble();
         this.posterPath = in.readString();
-        this.originalLanguage = in.readString();
         this.overview = in.readString();
         this.releaseDate = in.readString();
     }
@@ -158,7 +103,7 @@ public class MoviesInfo implements Parcelable, Comparable<MoviesInfo> {
 
     @Override
     public int compareTo(@NonNull MoviesInfo info) {
-        if (info.getPopularity() > this.getPopularity())
+        if (info.getVoteAverage() > this.getVoteAverage())
             return 1;
         else
             return -1;

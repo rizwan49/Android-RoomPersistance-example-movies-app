@@ -9,7 +9,6 @@ import android.widget.ImageView;
 
 import com.rizwan.moviesapp.R;
 import com.rizwan.moviesapp.Utils;
-import com.rizwan.moviesapp.activities.MoviesListActivity;
 import com.rizwan.moviesapp.apis.model.MoviesInfo;
 
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ import static com.rizwan.moviesapp.apis.MoviesApiService._SCHEME;
  */
 
 public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.MyViewHolder> {
-    ListItemOnClickListener mOnClickListener;
+    private final ListItemOnClickListener mOnClickListener;
     private static final String TAG = MoviesListAdapter.class.getName();
     private List<MoviesInfo> list;
 
@@ -75,7 +74,7 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.My
 
         @Override
         public void onClick(View v) {
-            mOnClickListener.onListItemClick(list.get(getAdapterPosition()));
+            mOnClickListener.onListItemClick(list.get(getAdapterPosition()), v.findViewById(R.id.poster));
         }
     }
 
@@ -103,6 +102,6 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.My
     }
 
     public interface ListItemOnClickListener {
-        void onListItemClick(MoviesInfo selectedObject);
+        void onListItemClick(MoviesInfo selectedObject, View view);
     }
 }
