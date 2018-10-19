@@ -3,7 +3,6 @@ package com.rizwan.moviesapp.apis;
 
 import com.rizwan.moviesapp.BuildConfig;
 import com.rizwan.moviesapp.apis.interceptors.HeaderModifierInterceptor;
-import com.rizwan.moviesapp.constants.Constants;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -14,6 +13,9 @@ import retrofit2.converter.moshi.MoshiConverterFactory;
 /**
  * Created by abdul on 14/10/18.
  * 1. created RestClient to setup once, which will improve performance and help to make a server call;
+ * 2. added LogInterceptor only into debug mode;
+ * 3. added ErrorHandlerInterceptor
+ * 4. added HeaderModifier
  */
 
 public class RestClient {
@@ -31,7 +33,7 @@ public class RestClient {
 
         Retrofit restAdapter = new Retrofit.Builder()
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .baseUrl(Constants.BASE_URL)//passing API_URL
+                .baseUrl(MoviesApiService.BASE_URL)//passing API_URL
                 .addConverterFactory(MoshiConverterFactory.create()) //passing MoshiConverterFactory to convert json key and value into our object
                 .client(httpClient.build())//passing OkHttpClient object
                 .build();

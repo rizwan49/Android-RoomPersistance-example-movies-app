@@ -15,19 +15,20 @@ import retrofit2.http.Url;
  */
 
 public interface MoviesApiService {
+    String KEY = "63f94c3c59156193af87f35751ad0bdf";
+    String BASE_URL = "https://api.themoviedb.org/";
     String URL_POPULAR = "3/movie/popular";
     String URL_TOP_RATED = "3/movie/top_rated";
-
     String _SCHEME = "https";
     String IMAGE_PATH = "/image.tmdb.org/t/p/w185";
-
+    String PAGE = "page";
 
     /***
-     * this method using to fetch list of movies based on pagination;
-     * @param page default is 1;
-     * @return list of results , totalPageCount etc;
+     * this method is used by the retrofit;
+     * @param url dynamically passing the required url, user can use the sort menu option then the url will get change;
+     * @param page based on the page we get the response;
      */
     @GET
-    Observable<Response<MoviesModel>> getMoviesList(@Url String url, @Query("page") int page);
+    Observable<Response<MoviesModel>> getMoviesList(@Url String url, @Query(PAGE) int page);
 
 }

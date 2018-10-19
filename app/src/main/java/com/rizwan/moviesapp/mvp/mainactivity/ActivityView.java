@@ -1,4 +1,4 @@
-package com.rizwan.moviesapp.view;
+package com.rizwan.moviesapp.mvp.mainactivity;
 
 
 import com.rizwan.moviesapp.apis.model.MoviesModel;

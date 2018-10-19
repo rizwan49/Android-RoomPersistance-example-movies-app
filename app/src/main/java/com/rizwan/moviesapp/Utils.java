@@ -16,8 +16,10 @@ import java.util.Objects;
  */
 
 public class Utils {
-    private static String TAG = Utils.class.getName();
-
+    /***
+     * using this method to set the view visible
+     * @param views list of views...
+     */
     public static void hideViews(View... views) {
         for (View view : views) {
             if (view == null) continue;
@@ -25,6 +27,10 @@ public class Utils {
         }
     }
 
+    /***
+     * using this method to set the view visible
+     * @param views list of views...
+     */
     public static void showViews(View... views) {
         for (View view : views) {
             if (view == null) continue;
@@ -33,10 +39,17 @@ public class Utils {
     }
 
 
-    public static void loadImage(Context context, ImageView imageView, Uri url, int errorImageUrl) {
+    /***
+     * this method used to load image into specified imageView;
+     * @param context pass context for Picasso to initiate;
+     * @param imageView after loading the image will be appear on this widget;
+     * @param url image url
+     * @param errorImageDrawable in case error comes during fetching image from given url then this errorImageDrawable will be appear into imageView;
+     */
+    public static void loadImage(Context context, ImageView imageView, Uri url, int errorImageDrawable) {
         Picasso.with(context)
                 .load(url)
-                .error(errorImageUrl)
+                .error(errorImageDrawable)
                 .into(imageView);
 
     }

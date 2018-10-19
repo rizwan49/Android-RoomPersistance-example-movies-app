@@ -19,6 +19,11 @@ import com.rizwan.moviesapp.apis.model.MoviesInfo;
 import static com.rizwan.moviesapp.apis.MoviesApiService.IMAGE_PATH;
 import static com.rizwan.moviesapp.apis.MoviesApiService._SCHEME;
 
+/***
+ * 1. getting information from the previous activity and check all the required conditions;
+ * 2. setup information to desired views;
+ *
+ */
 public class DetailActivity extends AppCompatActivity {
 
     private static final String EXTRA_DATA = "movies_info";

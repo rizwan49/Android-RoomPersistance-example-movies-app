@@ -18,24 +18,26 @@ import static com.rizwan.moviesapp.apis.MoviesApiService.IMAGE_PATH;
 import static com.rizwan.moviesapp.apis.MoviesApiService._SCHEME;
 
 /**
- * <p>
- * This is main Adapter which holds the all poster of movies;
- * 1. adding every time new list of information into existing list using addAllItem method.
- * 2. we have n number of pages so based on pages getting new list of movies information.
- * 3. setting into view
- * 4. todo clicking on poster should redirect to detail screen;
+ * This is an adapter which keeps the list of movie's information;
+ * 1. have n number of pages so based on pages getting new list of movies information.
+ * 2. adding every time new list of information into existing list using addAllItem method.
+ * 3. setting into viewHolder
+ * 4. add click listener
  */
 
 public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.MyViewHolder> {
     private final ListItemOnClickListener mOnClickListener;
-    private static final String TAG = MoviesListAdapter.class.getName();
     private List<MoviesInfo> list;
 
+    /***
+     * this method used to add list into existing list
+     * @param mList contains latest list which is fetched based on page wise;
+     */
     public void addAllItem(final List<MoviesInfo> mList) {
         if (list == null && mList != null && mList.size() > 0) {
             list = new ArrayList<>();
             list.addAll(mList);
-            this.notifyAll();
+            this.notifyDataSetChanged();
         } else if (mList != null && mList.size() > 0) {
             int lastIndex = this.list.size();
             this.list.addAll(mList);
@@ -44,6 +46,9 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.My
 
     }
 
+    /***
+     * clear all the items of list;
+     */
     public void clearAllItems() {
         if (list != null && list.size() > 0) {
             list.clear();
@@ -101,6 +106,9 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.My
         return list.size();
     }
 
+    /***
+     * listener for viewHolder's items
+     */
     public interface ListItemOnClickListener {
         void onListItemClick(MoviesInfo selectedObject, View view);
     }

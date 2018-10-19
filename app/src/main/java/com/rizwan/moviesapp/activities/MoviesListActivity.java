@@ -23,9 +23,9 @@ import com.rizwan.moviesapp.adapters.MoviesListAdapter;
 import com.rizwan.moviesapp.apis.MoviesApiService;
 import com.rizwan.moviesapp.apis.model.MoviesInfo;
 import com.rizwan.moviesapp.apis.model.MoviesModel;
-import com.rizwan.moviesapp.model.MainScreenPresenterImpl;
-import com.rizwan.moviesapp.presenter.MainScreenPresenter;
-import com.rizwan.moviesapp.view.ActivityView;
+import com.rizwan.moviesapp.mvp.mainactivity.MainScreenPresenterImpl;
+import com.rizwan.moviesapp.mvp.mainactivity.MainScreenPresenter;
+import com.rizwan.moviesapp.mvp.mainactivity.ActivityView;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -37,11 +37,24 @@ import static com.rizwan.moviesapp.apis.ResponseCodeConstants.SERVER_ERROR;
 
 
 /**
- * 1. loadMoviesList() method, which will increase page number and do call;
- * 2. MVP pattern used for validate and make a call using interface;
+ * This activity shows the list of movie's poster;
+ * 1. setup init and title
+ * 2. setup error view which will appear whenever something will go wrong during network call or internet issue;
+ * 3. as scrolling recyclerView it's calculating and calling again an api based on new PAGE_NUMBER and set result to existing list
+ * 4. MVP pattern used for validate and make a call using interface;
+ * 5. saved instance state
+ * 6. clicking on poster redirecting to detail screen;
+ * 7. added TransitionsAnimation;
  */
 
 public class MoviesListActivity extends AppCompatActivity implements ActivityView, View.OnClickListener, MoviesListAdapter.ListItemOnClickListener {
+
+    private static final String IS_LOADING = "isLoading";
+    private static final String TOTAL_ITEM_COUNT = "totalCount";
+    private static final String LAST_VISIBLE_ITEM = "lastVisibleItem";
+    private static final String CURRENT_PAGE_NUMBER = "currentPageNumber";
+    private static final String TOTAL_PAGE_COUNT = "totalPageCount";
+    private static final int SETTING_REQUEST_CODE = 0;
 
     private View rootView, mErrorView, resultView;
     private MainScreenPresenter presenter;
@@ -52,7 +65,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     private int totalItemCount;
     private int lastVisibleItem;
     private final int visibleThreshold = 5;
-    private int page;
+    private int page = 0;
     private int totalPage = 0;
     private final int DEFAULT_SPAN_COUNT = 2;
 
@@ -62,6 +75,8 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     private String selectedUrl;
 
     private Snackbar snackbar;
+    private String LIST = "list";
+    private ArrayList<MoviesInfo> list;
 
 
     @Override
@@ -71,9 +86,20 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         setTitle(R.string.pop_movies);
         init();
         setupErrorView();
-        setupDataView();
+        setupDataView(savedInstanceState);
         setupListeners();
-        resetAndCallAnApi();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(LIST, list);
+
+        outState.putBoolean(IS_LOADING, loading);
+        outState.putInt(TOTAL_ITEM_COUNT, totalItemCount);
+        outState.putInt(LAST_VISIBLE_ITEM, lastVisibleItem);
+        outState.putInt(CURRENT_PAGE_NUMBER, page);
+        outState.putInt(TOTAL_PAGE_COUNT, totalPage);
     }
 
     @Override
@@ -101,15 +127,18 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     private void resetAndCallAnApi() {
         page = 0;
         loading = true;
-        if (adapter != null)
+        if (adapter != null) {
             adapter.clearAllItems();
+        }
+        if (list != null)
+            list.clear();
         loadMoviesList();
     }
 
 
     private void loadMoviesList() {
         Utils.showViews(progressBarView);
-        presenter.validateAndProceed(this, selectedUrl, ++page);
+        presenter.validateAndProceed(selectedUrl, ++page);
     }
 
     private void setupListeners() {
@@ -126,9 +155,28 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     }
 
 
-    private void setupDataView() {
+    /***
+     * Checking savedInstanceState values and based on that proceeding ahead ;
+     * @param savedInstanceState if this object is null then initializing the list
+     *                          and proceed ahead or else proceed with the old savedState;
+     */
+    private void setupDataView(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            list = new ArrayList<>();
+            loadMoviesList();
+            Log.d(TAG, "initiate saved");
+        } else {
+            Log.d(TAG, "restore saved");
+            list = savedInstanceState.getParcelableArrayList(LIST);
+            loading = savedInstanceState.getBoolean(IS_LOADING);
+            totalItemCount = savedInstanceState.getInt(TOTAL_ITEM_COUNT);
+            lastVisibleItem = savedInstanceState.getInt(LAST_VISIBLE_ITEM);
+            page = savedInstanceState.getInt(CURRENT_PAGE_NUMBER);
+            totalPage = savedInstanceState.getInt(TOTAL_PAGE_COUNT);
+        }
+
         RecyclerView recyclerView = resultView.findViewById(R.id.recyclerViewList);
-        adapter = new MoviesListAdapter(new ArrayList<MoviesInfo>(), this);
+        adapter = new MoviesListAdapter(list, this);
         layoutManager = new GridLayoutManager(this, DEFAULT_SPAN_COUNT);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -175,7 +223,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
                 Intent intent = new Intent(android.provider.Settings.ACTION_SETTINGS);
                 PackageManager packageManager = getPackageManager();
                 if (intent.resolveActivity(packageManager) != null) {
-                    startActivityForResult(intent, 0);
+                    startActivityForResult(intent, SETTING_REQUEST_CODE);
                 }
             }
         });

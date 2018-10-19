@@ -1,15 +1,11 @@
-package com.rizwan.moviesapp.model;
+package com.rizwan.moviesapp.mvp.mainactivity;
 
-import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.rizwan.moviesapp.Utils;
 import com.rizwan.moviesapp.apis.ResponseCodeConstants;
 import com.rizwan.moviesapp.apis.RestClient;
 import com.rizwan.moviesapp.apis.model.MoviesModel;
-import com.rizwan.moviesapp.presenter.MainScreenPresenter;
-import com.rizwan.moviesapp.view.ActivityView;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -28,30 +24,39 @@ import static com.rizwan.moviesapp.apis.ResponseCodeConstants.SERVER_ERROR;
 public class MainScreenPresenterImpl implements MainScreenPresenter {
     private final ActivityView mainActivityView;
     private String selectedUrl;
+    private final String TAG = MainScreenPresenterImpl.class.getName();
 
     public MainScreenPresenterImpl(ActivityView mainScreenView) {
         this.mainActivityView = mainScreenView;
     }
 
     @Override
-    public void doCallOrErrorHandle(int code, int page) {
-        if (code == ResponseCodeConstants.VALID) {
-            doRestApiCall(page);
-        } else {
-            Log.d("presenter", "error:" + code);
-            mainActivityView.error(code);
-        }
+    public void validateAndProceed(String selectedUrl, int page) {
+        this.selectedUrl = selectedUrl;
+        Log.d(TAG, "sorting by:" + selectedUrl);
+        if (!TextUtils.isEmpty(selectedUrl))
+            doCallOrErrorHandle(ResponseCodeConstants.VALID, page);
+        else
+            doCallOrErrorHandle(ResponseCodeConstants.SOMETHING_WENT_WRONG, page);
     }
 
     @Override
-    public void validateAndProceed(Context mContext, String selectedUrl, int page) {
-        this.selectedUrl = selectedUrl;
-        if (Utils.isNetworkAvailable(mContext) && !TextUtils.isEmpty(selectedUrl))
-            doCallOrErrorHandle(ResponseCodeConstants.VALID, page);
-        else
-            doCallOrErrorHandle(ResponseCodeConstants.INTERNET_CONNECTION, page);
+    public void doCallOrErrorHandle(int code, int page) {
+        Log.d(TAG, "validation code :" + code);
+        switch (code) {
+            case ResponseCodeConstants.VALID:
+                doRestApiCall(page);
+                break;
+            default:
+                mainActivityView.error(code);
+        }
     }
 
+
+    /***
+     * this method used to call an api, passing page number
+     * @param page pass required pageNumber to get the list of movie's information;
+     */
     private void doRestApiCall(int page) {
         final CompositeDisposable disposable = new CompositeDisposable();
         RestClient.getApiService().getMoviesList(selectedUrl, page)

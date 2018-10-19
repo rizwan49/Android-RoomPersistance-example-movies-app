@@ -5,8 +5,9 @@ package com.rizwan.moviesapp.apis;
  */
 
 public interface ResponseCodeConstants {
-    int SERVER_ERROR = 2;
-    int VALID = 1;
-    int INTERNET_CONNECTION = 4;
+    int SERVER_ERROR = 401;
+    int VALID = 201;
+    int INTERNET_CONNECTION = 402;
     int OK = 200;
+    int SOMETHING_WENT_WRONG = 490;
 }
