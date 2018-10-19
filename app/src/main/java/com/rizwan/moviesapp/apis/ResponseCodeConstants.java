@@ -8,6 +8,6 @@ public interface ResponseCodeConstants {
     int SERVER_ERROR = 401;
     int VALID = 201;
     int INTERNET_CONNECTION = 402;
-    int OK = 200;
+    int SUCCESS = 200;
     int SOMETHING_WENT_WRONG = 490;
 }

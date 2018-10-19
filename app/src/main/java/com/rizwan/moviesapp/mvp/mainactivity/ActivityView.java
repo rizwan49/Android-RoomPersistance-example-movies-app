@@ -10,7 +10,7 @@ import retrofit2.Response;
  */
 
 public interface ActivityView {
-    void error(int type);
+    void errorView(int type);
 
     void getServerResponse(Response<MoviesModel> response);
 }

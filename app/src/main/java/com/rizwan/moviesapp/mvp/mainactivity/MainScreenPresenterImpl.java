@@ -3,9 +3,13 @@ package com.rizwan.moviesapp.mvp.mainactivity;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.rizwan.moviesapp.apis.MessageEvent;
+import com.rizwan.moviesapp.apis.NoConnectivityException;
 import com.rizwan.moviesapp.apis.ResponseCodeConstants;
 import com.rizwan.moviesapp.apis.RestClient;
 import com.rizwan.moviesapp.apis.model.MoviesModel;
+
+import org.greenrobot.eventbus.EventBus;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -14,8 +18,9 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Response;
 
-import static com.rizwan.moviesapp.apis.ResponseCodeConstants.OK;
-import static com.rizwan.moviesapp.apis.ResponseCodeConstants.SERVER_ERROR;
+import static com.rizwan.moviesapp.apis.ResponseCodeConstants.INTERNET_CONNECTION;
+import static com.rizwan.moviesapp.apis.ResponseCodeConstants.SOMETHING_WENT_WRONG;
+import static com.rizwan.moviesapp.apis.ResponseCodeConstants.SUCCESS;
 
 /**
  * Created by abdul on 14/10/18.
@@ -48,7 +53,7 @@ public class MainScreenPresenterImpl implements MainScreenPresenter {
                 doRestApiCall(page);
                 break;
             default:
-                mainActivityView.error(code);
+                mainActivityView.errorView(code);
         }
     }
 
@@ -70,15 +75,17 @@ public class MainScreenPresenterImpl implements MainScreenPresenter {
 
                     @Override
                     public void onNext(Response<MoviesModel> response) {
-                        if (response.code() == OK)
+                        if (response.code() == SUCCESS)
                             mainActivityView.getServerResponse(response);
-                        else
-                            mainActivityView.error(SERVER_ERROR);
+
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        mainActivityView.error(SERVER_ERROR);
+                        if (e instanceof NoConnectivityException)
+                            EventBus.getDefault().post(new MessageEvent(INTERNET_CONNECTION));
+                        else
+                            EventBus.getDefault().post(new MessageEvent(SOMETHING_WENT_WRONG));
                     }
 
                     @Override

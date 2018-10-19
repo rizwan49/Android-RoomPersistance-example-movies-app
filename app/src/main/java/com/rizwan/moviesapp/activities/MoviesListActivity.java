@@ -20,12 +20,17 @@ import android.widget.ImageView;
 import com.rizwan.moviesapp.R;
 import com.rizwan.moviesapp.Utils;
 import com.rizwan.moviesapp.adapters.MoviesListAdapter;
+import com.rizwan.moviesapp.apis.MessageEvent;
 import com.rizwan.moviesapp.apis.MoviesApiService;
 import com.rizwan.moviesapp.apis.model.MoviesInfo;
 import com.rizwan.moviesapp.apis.model.MoviesModel;
-import com.rizwan.moviesapp.mvp.mainactivity.MainScreenPresenterImpl;
-import com.rizwan.moviesapp.mvp.mainactivity.MainScreenPresenter;
 import com.rizwan.moviesapp.mvp.mainactivity.ActivityView;
+import com.rizwan.moviesapp.mvp.mainactivity.MainScreenPresenter;
+import com.rizwan.moviesapp.mvp.mainactivity.MainScreenPresenterImpl;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -45,6 +50,7 @@ import static com.rizwan.moviesapp.apis.ResponseCodeConstants.SERVER_ERROR;
  * 5. saved instance state
  * 6. clicking on poster redirecting to detail screen;
  * 7. added TransitionsAnimation;
+ * 8. EventBus integrated;
  */
 
 public class MoviesListActivity extends AppCompatActivity implements ActivityView, View.OnClickListener, MoviesListAdapter.ListItemOnClickListener {
@@ -55,6 +61,8 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     private static final String CURRENT_PAGE_NUMBER = "currentPageNumber";
     private static final String TOTAL_PAGE_COUNT = "totalPageCount";
     private static final int SETTING_REQUEST_CODE = 0;
+    private static final String ERROR_VIEW_VISIBILITY = "errorViewVisibility";
+    private static final String DATA_VIEW_VISIBILITY = "dataViewVisibility";
 
     private View rootView, mErrorView, resultView;
     private MainScreenPresenter presenter;
@@ -85,7 +93,6 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         setContentView(R.layout.main_layout);
         setTitle(R.string.pop_movies);
         init();
-        setupErrorView();
         setupDataView(savedInstanceState);
         setupListeners();
     }
@@ -100,6 +107,8 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         outState.putInt(LAST_VISIBLE_ITEM, lastVisibleItem);
         outState.putInt(CURRENT_PAGE_NUMBER, page);
         outState.putInt(TOTAL_PAGE_COUNT, totalPage);
+        outState.putInt(ERROR_VIEW_VISIBILITY, mErrorView.getVisibility());
+        outState.putInt(DATA_VIEW_VISIBILITY, resultView.getVisibility());
     }
 
     @Override
@@ -122,6 +131,26 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
 
         resetAndCallAnApi();
         return true;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        if (event != null) {
+            Log.d(TAG, "EventBus:" + event.getType());
+            errorView(event.getType());
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 
     private void resetAndCallAnApi() {
@@ -152,6 +181,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         mErrorView = findViewById(R.id.error_view);
         resultView = findViewById(R.id.resultView);
         selectedUrl = MoviesApiService.URL_POPULAR;
+        retry = mErrorView.findViewById(R.id.buttonRetry);
     }
 
 
@@ -173,6 +203,8 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
             lastVisibleItem = savedInstanceState.getInt(LAST_VISIBLE_ITEM);
             page = savedInstanceState.getInt(CURRENT_PAGE_NUMBER);
             totalPage = savedInstanceState.getInt(TOTAL_PAGE_COUNT);
+            resultView.setVisibility(savedInstanceState.getInt(DATA_VIEW_VISIBILITY));
+            mErrorView.setVisibility(savedInstanceState.getInt(ERROR_VIEW_VISIBILITY));
         }
 
         RecyclerView recyclerView = resultView.findViewById(R.id.recyclerViewList);
@@ -213,9 +245,8 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         Utils.hideViews(progressBarView);
     }
 
-    private void setupErrorView() {
-        snackbar = Snackbar.make(rootView, R.string.server_error, Snackbar.LENGTH_INDEFINITE);
-        retry = mErrorView.findViewById(R.id.buttonRetry);
+    private void setupErrorNetworkView() {
+        snackbar = Snackbar.make(rootView, R.string.network_error, Snackbar.LENGTH_INDEFINITE);
         snackbar.setActionTextColor(ContextCompat.getColor(this, R.color.colorButton));
         snackbar.setAction(R.string.open_setting, new View.OnClickListener() {
             @Override
@@ -231,16 +262,20 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
 
 
     @Override
-    public void error(int type) {
+    public void errorView(int type) {
         switch (type) {
-            case SERVER_ERROR:
-                Utils.hideViews(progressBarView, resultView);
-                Utils.showViews(mErrorView);
-                snackbar.show();
-                break;
             case INTERNET_CONNECTION:
                 Utils.hideViews(progressBarView, resultView);
                 Utils.showViews(mErrorView);
+                setupErrorNetworkView();
+                snackbar.show();
+                break;
+
+            case SERVER_ERROR:
+            default:
+                Utils.hideViews(progressBarView, resultView);
+                Utils.showViews(mErrorView);
+                snackbar = Snackbar.make(rootView, R.string.server_error, Snackbar.LENGTH_INDEFINITE);
                 snackbar.show();
                 break;
         }
@@ -270,6 +305,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.buttonRetry:
+                dismissSnackBar();
                 Utils.hideViews(mErrorView, resultView);
                 Utils.showViews(progressBarView);
                 loadMoviesList();

@@ -2,6 +2,7 @@ package com.rizwan.moviesapp.apis;
 
 
 import com.rizwan.moviesapp.BuildConfig;
+import com.rizwan.moviesapp.apis.interceptors.ErrorHandlerInterceptor;
 import com.rizwan.moviesapp.apis.interceptors.HeaderModifierInterceptor;
 
 import okhttp3.OkHttpClient;
@@ -25,6 +26,7 @@ public class RestClient {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
         httpClient.interceptors().add(new HeaderModifierInterceptor());
+        httpClient.interceptors().add(new ErrorHandlerInterceptor());
         if (BuildConfig.DEBUG) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
