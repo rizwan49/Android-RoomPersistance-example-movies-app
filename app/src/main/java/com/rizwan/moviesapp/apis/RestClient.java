@@ -1,6 +1,8 @@
 package com.rizwan.moviesapp.apis;
 
 
+import android.content.Context;
+
 import com.rizwan.moviesapp.BuildConfig;
 import com.rizwan.moviesapp.apis.interceptors.ErrorHandlerInterceptor;
 import com.rizwan.moviesapp.apis.interceptors.HeaderModifierInterceptor;
@@ -22,11 +24,11 @@ import retrofit2.converter.moshi.MoshiConverterFactory;
 public class RestClient {
     private static MoviesApiService apiService;
 
-    private RestClient() {
+    private RestClient(Context context) {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
         httpClient.interceptors().add(new HeaderModifierInterceptor());
-        httpClient.interceptors().add(new ErrorHandlerInterceptor());
+        httpClient.interceptors().add(new ErrorHandlerInterceptor(context));
         if (BuildConfig.DEBUG) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -44,11 +46,11 @@ public class RestClient {
 
 
     //double checked locking singleTon Design.
-    public static MoviesApiService getApiService() {
+    public static MoviesApiService getApiService(Context context) {
         if (apiService == null) {
             synchronized (RestClient.class) {
                 if (apiService == null)
-                    new RestClient();
+                    new RestClient(context);
             }
         }
         return apiService;

@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 public class MoviesApplication extends Application {
-    static Context context;
+    private Context context;
 
     @Override
     public void onCreate() {
@@ -12,7 +12,4 @@ public class MoviesApplication extends Application {
         context = this;
     }
 
-    public static Context getMyApplicationContext() {
-        return context;
-    }
 }

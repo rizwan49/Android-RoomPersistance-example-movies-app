@@ -83,7 +83,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     private String selectedUrl;
 
     private Snackbar snackbar;
-    private String LIST = "list";
+    private final String LIST = "list";
     private ArrayList<MoviesInfo> list;
 
 

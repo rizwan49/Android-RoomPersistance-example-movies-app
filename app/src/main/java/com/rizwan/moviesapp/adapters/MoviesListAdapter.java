@@ -1,6 +1,7 @@
 package com.rizwan.moviesapp.adapters;
 
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -89,7 +90,7 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.My
     }
 
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.movies_list_item_image, parent, false);
 
@@ -97,7 +98,7 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.My
     }
 
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
         holder.bindView(position);
     }
 

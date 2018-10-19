@@ -1,5 +1,6 @@
 package com.rizwan.moviesapp.mvp.mainactivity;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -64,7 +65,7 @@ public class MainScreenPresenterImpl implements MainScreenPresenter {
      */
     private void doRestApiCall(int page) {
         final CompositeDisposable disposable = new CompositeDisposable();
-        RestClient.getApiService().getMoviesList(selectedUrl, page)
+        RestClient.getApiService((Context) mainActivityView).getMoviesList(selectedUrl, page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Response<MoviesModel>>() {

@@ -4,7 +4,7 @@ package com.rizwan.moviesapp.apis;
  * this class help for EventBus;
  */
 public class MessageEvent {
-    int type;
+    private final int type;
 
     public MessageEvent(int type) {
         this.type = type;

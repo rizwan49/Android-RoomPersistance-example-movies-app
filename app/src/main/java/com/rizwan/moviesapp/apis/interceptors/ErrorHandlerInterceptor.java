@@ -1,14 +1,15 @@
 package com.rizwan.moviesapp.apis.interceptors;
 
+import android.content.Context;
 import android.util.Log;
 
-import com.rizwan.moviesapp.MoviesApplication;
 import com.rizwan.moviesapp.Utils;
 import com.rizwan.moviesapp.apis.NoConnectivityException;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
+
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -21,15 +22,20 @@ import okhttp3.Response;
  * 3. if in response not getting 200 then passing that response code to mainScreen to show the view with the help of eventBus
  */
 public class ErrorHandlerInterceptor implements Interceptor {
-    static final String TAG = ErrorHandlerInterceptor.class.getName();
+    private static final String TAG = ErrorHandlerInterceptor.class.getName();
+    private final Context context;
+
+    public ErrorHandlerInterceptor(Context context) {
+        this.context = context;
+    }
 
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request originalRequest = chain.request();
 
-        if (!Utils.isNetworkAvailable(MoviesApplication.getMyApplicationContext())) {
+        if (!Utils.isNetworkAvailable(context)) {
             Log.d(TAG, "errorHandler:internet issue");
-            throw new NoConnectivityException();
+            throw new NoConnectivityException(context);
         }
 
         Response response = chain.proceed(originalRequest);
