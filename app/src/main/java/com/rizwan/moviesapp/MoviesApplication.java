@@ -3,6 +3,8 @@ package com.rizwan.moviesapp;
 import android.app.Application;
 import android.content.Context;
 
+import com.facebook.stetho.Stetho;
+
 public class MoviesApplication extends Application {
     private Context context;
 
@@ -10,6 +12,7 @@ public class MoviesApplication extends Application {
     public void onCreate() {
         super.onCreate();
         context = this;
+        Stetho.initializeWithDefaults(this);
     }
 
 }
