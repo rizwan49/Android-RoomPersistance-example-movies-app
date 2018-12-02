@@ -1,32 +1,44 @@
 package com.rizwan.moviesapp.apis.model;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import com.rizwan.moviesapp.db.DatabaseConstant;
 import com.squareup.moshi.Json;
 
 /**
  * Created by abdul on 14/10/18.
  */
 
+@Entity
 public class MoviesInfo implements Parcelable, Comparable<MoviesInfo> {
 
+    @PrimaryKey
+    @ColumnInfo(name = DatabaseConstant.Fields.Movies.ID)
     @Json(name = "id")
     private int id;
 
+    @ColumnInfo(name = DatabaseConstant.Fields.Movies.VOTE_AVERAGE)
     @Json(name = "vote_average")
     private double voteAverage;
 
+    @ColumnInfo(name = DatabaseConstant.Fields.Movies.TITLE)
     @Json(name = "title")
     private String title;
 
+    @ColumnInfo(name = DatabaseConstant.Fields.Movies.POSTER_PATH)
     @Json(name = "poster_path")
     private String posterPath;
 
+    @ColumnInfo(name = DatabaseConstant.Fields.Movies.OVERVIEW)
     @Json(name = "overview")
     private String overview;
 
+    @ColumnInfo(name = DatabaseConstant.Fields.Movies.RELEASE_DATE)
     @Json(name = "release_date")
     private String releaseDate;
 
@@ -107,5 +119,21 @@ public class MoviesInfo implements Parcelable, Comparable<MoviesInfo> {
             return 1;
         else
             return -1;
+    }
+
+    public void setVoteAverage(double voteAverage) {
+        this.voteAverage = voteAverage;
+    }
+
+    public void setPosterPath(String posterPath) {
+        this.posterPath = posterPath;
+    }
+
+    public void setOverview(String overview) {
+        this.overview = overview;
+    }
+
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
     }
 }

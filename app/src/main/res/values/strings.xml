@@ -19,4 +19,6 @@
     <string name="open_setting">Open Setting</string>
     <string name="transition_banner_id">banner</string>
     <string name="no_connectivity_exception_msg">NoInternetException found. please check the network connection!</string>
+    <string name="movies_added_into_collection">Movie added into your favorite list.</string>
+    <string name="favorites">My Favorites</string>
 </resources>

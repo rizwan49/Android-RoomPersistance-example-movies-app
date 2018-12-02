@@ -1,5 +1,7 @@
 package com.rizwan.moviesapp.activities;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -27,12 +29,14 @@ import com.rizwan.moviesapp.apis.model.MoviesModel;
 import com.rizwan.moviesapp.mvp.mainactivity.ActivityView;
 import com.rizwan.moviesapp.mvp.mainactivity.MainScreenPresenter;
 import com.rizwan.moviesapp.mvp.mainactivity.MainScreenPresenterImpl;
+import com.rizwan.moviesapp.viewmodel.MainActivityViewModel;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import retrofit2.Response;
@@ -85,6 +89,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     private Snackbar snackbar;
     private final String LIST = "list";
     private ArrayList<MoviesInfo> list;
+    private MainActivityViewModel viewModel;
 
 
     @Override
@@ -100,7 +105,10 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(LIST, list);
+        if (viewModel.isFavMenuSelected())
+            outState.putParcelableArrayList(LIST, viewModel.getFavList());
+        else
+            outState.putParcelableArrayList(LIST, list);
 
         outState.putBoolean(IS_LOADING, loading);
         outState.putInt(TOTAL_ITEM_COUNT, totalItemCount);
@@ -122,16 +130,39 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         switch (item.getItemId()) {
             case R.id.menu_most_popular:
                 selectedUrl = MoviesApiService.URL_POPULAR;
+                resetAndCallAnApi();
                 break;
 
             case R.id.menu_top_rated:
                 selectedUrl = MoviesApiService.URL_TOP_RATED;
+                resetAndCallAnApi();
+                break;
+
+            case R.id.menu_favorites:
+                if (!viewModel.isFavMenuSelected()) {
+                    viewModel.setFav(true);
+                    resetInfo();
+                    setupViewAdapter(viewModel.getList().getValue());
+                }
                 break;
         }
 
-        resetAndCallAnApi();
         return true;
     }
+
+    final Observer<List<MoviesInfo>> favObserver = new Observer<List<MoviesInfo>>() {
+        @Override
+        public void onChanged(@Nullable final List<MoviesInfo> list) {
+            // Update the UI, in this case, a TextView.
+            Log.d(TAG, "observer working");
+
+            viewModel.setArrayList(list);
+            if (viewModel.isFavMenuSelected()) {
+                resetInfo();
+                setupViewAdapter(list);
+            }
+        }
+    };
 
     @Override
     public void onStart() {
@@ -154,6 +185,12 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     }
 
     private void resetAndCallAnApi() {
+        viewModel.setFav(false);
+        resetInfo();
+        loadMoviesList();
+    }
+
+    private void resetInfo() {
         page = 0;
         loading = true;
         if (adapter != null) {
@@ -161,7 +198,6 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         }
         if (list != null)
             list.clear();
-        loadMoviesList();
     }
 
 
@@ -175,6 +211,8 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     }
 
     private void init() {
+        viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
+
         presenter = new MainScreenPresenterImpl(this);
         rootView = findViewById(R.id.rootView);
         progressBarView = findViewById(R.id.progress_bar);
@@ -182,6 +220,9 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         resultView = findViewById(R.id.resultView);
         selectedUrl = MoviesApiService.URL_POPULAR;
         retry = mErrorView.findViewById(R.id.buttonRetry);
+
+        if (viewModel.liveDataList == null || !viewModel.liveDataList.hasActiveObservers())
+            viewModel.getList().observe(this, favObserver);
     }
 
 
@@ -195,7 +236,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
             list = new ArrayList<>();
             loadMoviesList();
             Log.d(TAG, "initiate saved");
-        } else {
+        } else if (!viewModel.isFavMenuSelected()) {
             Log.d(TAG, "restore saved");
             list = savedInstanceState.getParcelableArrayList(LIST);
             loading = savedInstanceState.getBoolean(IS_LOADING);
@@ -203,6 +244,10 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
             lastVisibleItem = savedInstanceState.getInt(LAST_VISIBLE_ITEM);
             page = savedInstanceState.getInt(CURRENT_PAGE_NUMBER);
             totalPage = savedInstanceState.getInt(TOTAL_PAGE_COUNT);
+            resultView.setVisibility(savedInstanceState.getInt(DATA_VIEW_VISIBILITY));
+            mErrorView.setVisibility(savedInstanceState.getInt(ERROR_VIEW_VISIBILITY));
+        } else {
+            list = viewModel.getFavList();
             resultView.setVisibility(savedInstanceState.getInt(DATA_VIEW_VISIBILITY));
             mErrorView.setVisibility(savedInstanceState.getInt(ERROR_VIEW_VISIBILITY));
         }
@@ -217,7 +262,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (dy <= 0) {
+                if (dy <= 0 || viewModel.isFavMenuSelected()) {
                     return;
                 }
                 totalItemCount = layoutManager.getItemCount();
@@ -239,8 +284,8 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         });
     }
 
-    private void setupViewAdapter(MoviesModel info) {
-        adapter.addAllItem(info.getMoviesList());
+    private void setupViewAdapter(List<MoviesInfo> info) {
+        adapter.addAllItem(info);
         loading = true;
         Utils.hideViews(progressBarView);
     }
@@ -295,7 +340,8 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
 
         page = Objects.requireNonNull(response.body()).getPage();
         totalPage = Objects.requireNonNull(response.body()).getTotalPages();
-        setupViewAdapter(Objects.requireNonNull(response.body()));
+        if (response.body() != null)
+            setupViewAdapter(response.body().getMoviesList());
         dismissSnackBar();
 
     }

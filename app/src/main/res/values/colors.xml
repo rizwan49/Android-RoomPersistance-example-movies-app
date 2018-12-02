@@ -7,6 +7,7 @@
     <color name="textColor">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="colorBackground">#eeeeee</color>
+    <color name="divider">#d4d4d4</color>
+    <color name="colorBackground">#FFFFFF</color>
     <color name="movies_bg_color">#009689</color>
 </resources>
