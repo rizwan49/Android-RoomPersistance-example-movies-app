@@ -21,6 +21,9 @@ public interface DaoMovies {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(MoviesInfo... sms);
 
+    @Query(SELECT_PREFIX + DatabaseConstant.Tables.MOVIES + " where id==:movieId")
+    LiveData<MoviesInfo> getMovieById(int movieId);
+
     @Delete
     void delete(MoviesInfo sms);
 }

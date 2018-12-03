@@ -75,7 +75,7 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.My
             builder.scheme(_SCHEME)
                     .appendEncodedPath(IMAGE_PATH)
                     .appendEncodedPath(list.get(position).getPosterPath()).build();
-            Utils.loadImage(itemView.getContext(), poster, builder.build(), R.drawable.ic_broken_image);
+            Utils.loadImage(itemView.getContext(), poster, builder.build(), R.drawable.ic_place_holder, R.drawable.ic_broken_image);
         }
 
         @Override

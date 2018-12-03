@@ -15,7 +15,7 @@ import java.util.Objects;
  * Created by abdul on 15/10/18.
  */
 
-public class Utils {
+public final class Utils {
     /***
      * using this method to set the view visible
      * @param views list of views...
@@ -25,6 +25,10 @@ public class Utils {
             if (view == null) continue;
             view.setVisibility(View.GONE);
         }
+    }
+
+    private Utils(){
+
     }
 
     /***
@@ -46,9 +50,10 @@ public class Utils {
      * @param url image url
      * @param errorImageDrawable in case error comes during fetching image from given url then this errorImageDrawable will be appear into imageView;
      */
-    public static void loadImage(Context context, ImageView imageView, Uri url, int errorImageDrawable) {
+    public static void loadImage(Context context, ImageView imageView, Uri url, int placeHolder, int errorImageDrawable) {
         Picasso.with(context)
                 .load(url)
+                .placeholder(placeHolder)
                 .error(errorImageDrawable)
                 .into(imageView);
 

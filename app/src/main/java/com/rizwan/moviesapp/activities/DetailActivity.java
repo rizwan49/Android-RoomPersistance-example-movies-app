@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +29,8 @@ import com.rizwan.moviesapp.apis.model.MoviesInfo;
 import com.rizwan.moviesapp.apis.model.detail.VideosAndReviewsModel;
 import com.rizwan.moviesapp.apis.model.detail.review.ReviewFieldModel;
 import com.rizwan.moviesapp.viewmodel.DetailViewModel;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -76,9 +80,10 @@ public class DetailActivity extends AppCompatActivity implements DetailInfoAdapt
     RecyclerView recyclerView;
     @BindView(R.id.img_poster)
     ImageView imageViewPoster;
-
     @BindView(R.id.rootView)
     View rootView;
+    @BindView(R.id.btn_favorite)
+    Button btnFavorite;
 
     private String TAG = DetailActivity.class.getName();
     private VideosAndReviewsModel videosAndReviewsModels;
@@ -112,6 +117,15 @@ public class DetailActivity extends AppCompatActivity implements DetailInfoAdapt
 
     }
 
+    final android.arch.lifecycle.Observer<MoviesInfo> favObserver = new android.arch.lifecycle.Observer<MoviesInfo>() {
+        @Override
+        public void onChanged(@Nullable final MoviesInfo movie) {
+            // Update the UI, in this case, a TextView.
+            Log.d(TAG, "updating..");
+            setupFavBtn(movie);
+        }
+    };
+
     private void populateUI() {
         tvName.setText(moviesInfo.getTitle());
         tvReleaseDate.setText(moviesInfo.getReleaseDate());
@@ -122,12 +136,23 @@ public class DetailActivity extends AppCompatActivity implements DetailInfoAdapt
         builder.scheme(_SCHEME)
                 .appendEncodedPath(IMAGE_PATH)
                 .appendEncodedPath(moviesInfo.getPosterPath()).build();
-        Utils.loadImage(this, imageViewPoster, builder.build(), R.drawable.ic_broken_image);
+        Utils.loadImage(this, imageViewPoster, builder.build(), R.drawable.ic_place_holder, R.drawable.ic_broken_image);
 
         tvSummary.setText(moviesInfo.getOverview());
 
         getVideosAndReviews();
+    }
 
+    boolean isAdded;
+
+    private void setupFavBtn(MoviesInfo info) {
+        if (info != null) {
+            isAdded = true;
+            btnFavorite.setText(R.string.remove_from_fav);
+        } else {
+            isAdded = false;
+            btnFavorite.setText(R.string.mark_as_favorite);
+        }
     }
 
     private void init() {
@@ -135,8 +160,9 @@ public class DetailActivity extends AppCompatActivity implements DetailInfoAdapt
     }
 
     private void adapterInit() {
-        viewModel = ViewModelProviders.of(this).get(DetailViewModel.class);
 
+        viewModel = ViewModelProviders.of(this).get(DetailViewModel.class);
+        viewModel.getMovieById(moviesInfo.getId()).observe(this, favObserver);
         adapter = new DetailInfoAdapter(viewModel.getList(), this);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -156,10 +182,16 @@ public class DetailActivity extends AppCompatActivity implements DetailInfoAdapt
         }
     }
 
+
     @OnClick(R.id.btn_favorite)
     public void onClick() {
-        viewModel.insertIntoDb(moviesInfo);
-        Snackbar.make(rootView, R.string.movies_added_into_collection, Snackbar.LENGTH_LONG).show();
+        if (!isAdded) {
+            viewModel.insertIntoDb(moviesInfo);
+            Snackbar.make(rootView, R.string.movies_added_into_collection, Snackbar.LENGTH_LONG).show();
+        } else {
+            viewModel.removeMovie(moviesInfo);
+            Snackbar.make(rootView, R.string.removed_from_list, Snackbar.LENGTH_LONG).show();
+        }
     }
 
     private void closeOnError() {

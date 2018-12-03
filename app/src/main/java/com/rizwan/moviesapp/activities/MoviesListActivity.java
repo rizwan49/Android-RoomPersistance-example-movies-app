@@ -142,7 +142,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
                 if (!viewModel.isFavMenuSelected()) {
                     viewModel.setFav(true);
                     resetInfo();
-                    setupViewAdapter(viewModel.getList().getValue());
+                    viewModel.getList().observe(this, favObserver);
                 }
                 break;
         }
@@ -221,8 +221,7 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
         selectedUrl = MoviesApiService.URL_POPULAR;
         retry = mErrorView.findViewById(R.id.buttonRetry);
 
-        if (viewModel.liveDataList == null || !viewModel.liveDataList.hasActiveObservers())
-            viewModel.getList().observe(this, favObserver);
+        viewModel.getList().observe(this, favObserver);
     }
 
 

@@ -21,4 +21,6 @@
     <string name="no_connectivity_exception_msg">NoInternetException found. please check the network connection!</string>
     <string name="movies_added_into_collection">Movie added into your favorite list.</string>
     <string name="favorites">My Favorites</string>
+    <string name="remove_from_fav">Remove from favorite list</string>
+    <string name="removed_from_list">Removed from favorite list</string>
 </resources>

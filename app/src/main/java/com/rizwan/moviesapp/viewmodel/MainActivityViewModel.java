@@ -29,9 +29,7 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public LiveData<List<MoviesInfo>> getList() {
-        if (liveDataList == null) {
-            liveDataList = DatabaseHelper.getInstance().daoMovies().getAllMovies();
-        }
+        liveDataList = DatabaseHelper.getInstance().daoMovies().getAllMovies();
         return liveDataList;
     }
 
