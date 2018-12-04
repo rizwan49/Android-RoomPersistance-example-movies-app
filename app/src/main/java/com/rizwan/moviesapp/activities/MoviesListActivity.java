@@ -165,6 +165,13 @@ public class MoviesListActivity extends AppCompatActivity implements ActivityVie
     };
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if(viewModel.isFavMenuSelected())
+            viewModel.getList().observe(this,favObserver);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
